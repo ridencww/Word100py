@@ -5,6 +5,14 @@ try:
 except RuntimeError:
     print("Error importing RPi.GPIO.  Do you need to use sudo?")
 
+LANG_ENGLISH_MALE = ("l",0)
+LANG_ENGLISH_FEMALE = ("l",1)
+LANG_FRENCH = ("l",2)
+LANG_ITALIAN = ("l",3)
+LANG_PORTUGUESE = ("l",4)
+LANG_RUSSIAN = ("l",5)
+LANG_SPANISH = ("l",6)
+
 PAUSE_500 = ("p", 0.5)
 PAUSE_1000 = ("p", 1.0)
 
@@ -13,7 +21,9 @@ class Talker(object):
     clk = 0
     mosi = 0
     cs = []
-    
+
+    current_language = LANG_ENGLISH_FEMALE
+
     NUMBER_ONES = None
     NUMBER_TEENS = None
     NUMBER_TENS = None
@@ -35,8 +45,8 @@ class Talker(object):
     # VOLUME_SET (0x44), VOLUME_UP (0x54), and VOLUME_DOWN (0x48)
     # are not used by this library at present
 
-    interword_delay = 0.7;
-    playback_mode = _PLAY;
+    interword_delay = 0.7
+    playback_mode = _PLAY
 
     def __init__(self, pin_mosi, pin_clk, *pins_cs):
         self.NUMBER_ONES = []
@@ -67,10 +77,20 @@ class Talker(object):
     def say(self, *words):
         for word in words:
             if type(word) is int:
+                # number
                 self.say_number(word)
+            elif word[0] == 'a':
+                # alphabet letter
+                offset = 26 * self.current_language[1]
+                self.say(word[1], word[2] + offset)
+            elif word[0] == 'l':
+                # language change
+                self.current_language = word
             elif word[0] == 'p':
+                # pause
                 time.sleep(word[1])
             else:
+                # word
                 self.say_word(word[1], word[2])
                 time.sleep(self.interword_delay)
 
@@ -81,12 +101,6 @@ class Talker(object):
             if number < 0:
                 self.say(self.NUMBER_MISC["minus"])
                 number = -number
-
-            nf = number // 1000000000
-            if nf != 0:
-                self.say_number_fragment(nf)
-                self.say(self.NUMBER_MISC['billion'])
-                number -= nf * 1000000000
 
             nf = number // 1000000
             if nf != 0:
@@ -129,17 +143,20 @@ class Talker(object):
             hr = 24
             am = True
 
-        if twelve_hour_mode:
+        if not twelve_hour_mode:
+            if hr < 10:
+                self.say(self.NUMBER_ONES[0])
+            if hr != 0:
+                self.say_number(hr)
+                if min == 0:
+                    self.say(self.NUMBER_MISC["hundred"])
+        else:
             if hr >= 13:
                 hr -= 12
-
-        self.say_number(hr)
-
-        if twelve_hour_mode == False:
-            self.say(self.NUMBER_MISC["hundred"])
+            self.say_number(hr)
 
         if min > 0:
-            if min < 10:
+            if min < 10 and twelve_hour_mode:
                 self.say(self.NUMBER_MISC["oh"])
             self.say_number(min)
             
@@ -151,7 +168,8 @@ class Talker(object):
             self.say(ampm)
 
     def say_word(self, bank, word):
-        self._send(self.cs[bank], self.playback_mode << 8 | word)
+        # Bank data is 1-based while CS is 0-based, so adjust before call
+        self._send(self.cs[bank-1], self.playback_mode << 8 | word)
 
     def _send(self, bank, data):
         GPIO.output(bank, GPIO.LOW)
@@ -164,6 +182,9 @@ class Talker(object):
             GPIO.output(self.clk, GPIO.LOW)
             data <<= 1
         GPIO.output(bank, GPIO.HIGH)
+
+    def set_language(self, language):
+        self.current_language = language
 
     def set_delay(self, seconds):
         old_value = self.interword_delay
