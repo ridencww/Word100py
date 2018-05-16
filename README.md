@@ -85,8 +85,6 @@ or, if you want to save the last language setting:
 
 Please note that this only impacts the speaking of the letters of the alphabet and not the rest of the words supported by the boards.
 
-
-
 ## On the radar
 
 The Big Buddy Talker is nearing release and I expect to have my boards very soon. When I receive them, I will confirm the word offsets as I spotted a few that will need testing when I get the actual hardware.
@@ -100,6 +98,10 @@ A refactor is being considered that will break out each AP23 chip into a separat
 The functionality and structure of this library was patterned after the fine work by LeRoy Miller, who wrote the library for the Arduino. LeRoy did the heavy lifting, gathering up the word tables and defining the say() routines that really make the boards shine. LeRoy credited Mark Ganis for contribution of the original saynumber code, and I will extend my appreciation for his work as well.
 
 https://github.com/kd8bxp/Word100
+
+## Version History
+
+1.0 - Initial release with provisional support of the BBT
 
 ## License
 
