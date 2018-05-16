@@ -1,12 +1,12 @@
 import datetime
 
-from WordsLBT import *
+from WordsBBT import *
 
 # Create an instance of the LBT class. Must specify the PIN numbers (not GPIO numbers)
 # on the Pi's expansion connector for MOSI, CLK, and CS respectively.
 # These are the same pins used for the hardware SPI. Be sure that SPI is disabled in
-# the raspi-config utility or if you need hardware SPI, use three unused I/O ports.
-talker = WordsLBT(19, 23, 24)
+# the raspi-config utility or if you need hardware SPI, use six unused I/O ports.
+talker = WordsBBT(19, 23, 24, 29, 31, 33)
 
 # Saying numbers
 talker.say_number(123456)
