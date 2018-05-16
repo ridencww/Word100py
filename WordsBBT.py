@@ -371,7 +371,7 @@ IGNORE = ("w",3,0xCC)
 IN = ("w",1,0xC9)
 INCHES = ("w",1,0x73)
 INCOMING = ("w",1,0xCA)
-INCOMING = ("w",3,0xCD)
+INCOMING_1 = ("w",3,0xCD)
 INDEX = ("w",3,0xCE)
 INDIA = ("w",2,0xD8)
 ING = ("w",1,0xCB)
@@ -879,7 +879,7 @@ class WordsBBT(Talker):
                             "minus":MINUS,"million":MILLION,"thousand":THOUSAND,"hundred":HUNDRED}
 
     def say_all(self):
-        for chip in range(0,4):
+        for chip in range(1,5):
             for i in range(0, 254):
                 self.say_word(chip, i)
                 time.sleep(self.interword_delay)
